@@ -1,5 +1,9 @@
 {
-  "description": "",
+  "name": "team3_project",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/APD-Kim/team3_project.git",
+  "license": "MIT",
   "type": "module",
   "dependencies": {
     "@prisma/client": "^5.9.1",
