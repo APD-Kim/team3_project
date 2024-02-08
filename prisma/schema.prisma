@@ -11,13 +11,13 @@ datasource db {
 }
 
 model User {
-  userId    Int      @id @default(autoincrement())
-  email     String   @unique
+  userId    Int       @id @default(autoincrement())
+  email     String    @unique
   password  String
   name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  follower  Int       @default(0)
   Post      Post[]
   Comment   Comment[]
   // 팔로우하는 사용자 관계
