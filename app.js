@@ -1,7 +1,8 @@
 import express from "express";
 import "dotenv/config";
 import cookieParser from "cookie-parser";
-import router from '../team3_project/router/posts.js';
+import router from '../team3_project/src/routes/posts.js';
+import user from '../team3_project/src/routes/user.router.js';
 
 const app = express();
 
@@ -14,7 +15,7 @@ app.get("/", function (req, res) {
 });
 
 
-app.use('/api' , [router]);
+app.use('/' , [user,router]);
 
 app.listen(process.env.PORT, () => {
   console.log(`${process.env.PORT}번 포트로 서버 실행중`);
