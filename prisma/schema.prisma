@@ -18,8 +18,13 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  Post    Post[]
-  Comment Comment[]
+  Post      Post[]
+  Comment   Comment[]
+  // 팔로우하는 사용자 관계
+  Following Follow[]  @relation("UserFollows")
+  // 팔로워 관계
+  Followers Follow[]  @relation("UserFollowedBy")
+  Reply     Reply[]
 }
 
 model Post {
@@ -29,7 +34,7 @@ model Post {
   content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  like      Int   @default(0)
+  like      Int      @default(0)
 
   Comment Comment[]
 
@@ -43,10 +48,11 @@ model Comment {
   content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  like      Int   @default(0) 
+  like      Int      @default(0)
 
-  User User @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  Post Post @relation(fields: [postId], references: [postId], onDelete: Cascade)
+  User  User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  Post  Post    @relation(fields: [postId], references: [postId], onDelete: Cascade)
+  Reply Reply[]
 }
 
 model Like {
@@ -54,8 +60,35 @@ model Like {
   userId    Int
   postId    Int?
   commentId Int?
+  replyId   Int?
   createdAt DateTime @default(now())
 
   @@unique([userId, postId])
   @@unique([userId, commentId])
+  @@unique([userId, replyId])
+}
+
+model Follow {
+  followId  BigInt   @id @default(autoincrement())
+  follower  Int
+  following Int
+  createdAt DateTime @default(now())
+
+  // 팔로우하는 사용자
+  followingUser User @relation("UserFollows", fields: [following], references: [userId])
+  // 팔로워
+  followerUser  User @relation("UserFollowedBy", fields: [follower], references: [userId])
+}
+
+model Reply {
+  replyId   Int      @id @default(autoincrement())
+  userId    Int
+  commentId Int
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  like      Int      @default(0)
+
+  User    User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  Comment Comment @relation(fields: [commentId], references: [commentId], onDelete: Cascade)
 }
