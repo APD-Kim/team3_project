@@ -1,14 +1,15 @@
 import express from "express";
 import { prisma } from "../utils/index.js";
 import "dotenv/config";
+import authMiddleware from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
-router.post("/comments/:postId", async (req, res, next) => {
+router.post("/comments/:postId", authMiddleware, async (req, res, next) => {
   try {
-    // const { userId } = req.user;
+    const { userId } = req.user;
     const { postId } = req.params;
-    const { content, userId } = req.body;
+    const { content } = req.body;
     if (!content) {
       return res.status(400).json({
         success: false,
@@ -26,9 +27,10 @@ router.post("/comments/:postId", async (req, res, next) => {
       .status(201)
       .json({ success: true, message: "댓글이 성공적으로 작성되었습니다." });
   } catch (err) {
-    return res
-      .status(500)
-      .json({ success: false, message: "댓글 작성 중 오류가 발생했습니다" });
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+    });
   }
 });
 
