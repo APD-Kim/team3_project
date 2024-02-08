@@ -1,6 +1,6 @@
 import express from "express";
 import { prisma } from "../utils/index.js";
-import authmiddleware from "../middleware/auth.middleware.js";
+import authMiddleware from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
@@ -66,7 +66,7 @@ router.get("/posts/:postId", async (req, res) => {
 });
 
 
-router.post("/posts", authmiddleware, async (req, res) => {
+router.post("/posts", authMiddleware, async (req, res) => {
 
   //// 뉴스 피드 작성
   try {
@@ -89,10 +89,6 @@ router.post("/posts", authmiddleware, async (req, res) => {
       return res.status(400).json({ message: "자기소개란을 작성해주세요." });
     }
 
-    if (user !== userId) {
-      return res.status(400).json({ message: "수정할 권한이 없습니다." });
-    }
-
     const posts = await prisma.post.create({
       data: {
 
@@ -112,7 +108,7 @@ router.post("/posts", authmiddleware, async (req, res) => {
   }
 });
 
-router.put("/posts/:postId", authmiddleware, async (req, res) => {
+router.put("/posts/:postId", authMiddleware, async (req, res) => {
   //// 뉴스 피드 수정
   try {
     const { userId } = req.user;
@@ -159,7 +155,7 @@ router.put("/posts/:postId", authmiddleware, async (req, res) => {
 
 
 
-router.delete("/posts/:postId", authmiddleware, async (req, res) => {
+router.delete("/posts/:postId", authMiddleware, async (req, res) => {
 
   //// 뉴스 피드 삭제
   try {
@@ -185,7 +181,6 @@ router.delete("/posts/:postId", authmiddleware, async (req, res) => {
 
 
     if (user !== userId) {
-
       return res.status(400).json({ message: "삭제할 권한이 없습니다." });
     }
 
