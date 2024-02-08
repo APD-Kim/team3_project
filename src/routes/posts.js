@@ -1,6 +1,6 @@
 import express from "express";
 import { prisma } from "../utils/index.js";
-import midddleware from "../middleware/auth.middleware.js";
+import authmiddleware from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
@@ -65,7 +65,7 @@ router.get("/posts/:postId", async (req, res) => {
   }
 });
 
-router.post("/posts", midddleware, async (req, res) => {
+router.post("/posts", authmiddleware, async (req, res) => {
   //// 뉴스 피드 작성
   try {
     const { userId } = req.user;
@@ -109,7 +109,7 @@ router.post("/posts", midddleware, async (req, res) => {
   }
 });
 
-router.put("/posts/:postId", midddleware, async (req, res) => {
+router.put("/posts/:postId", authmiddleware, async (req, res) => {
   //// 뉴스 피드 수정
   try {
     const { userId } = req.user;
@@ -154,7 +154,7 @@ router.put("/posts/:postId", midddleware, async (req, res) => {
   }
 });
 
-router.delete("/posts/:postId", midddleware, async (req, res) => {
+router.delete("/posts/:postId", authmiddleware, async (req, res) => {
   //// 뉴스 피드 삭제
   try {
     const { userId } = req.user;
