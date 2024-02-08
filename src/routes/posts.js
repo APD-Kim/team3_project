@@ -87,7 +87,7 @@ router.post("/posts", midddleware, async (req, res) => {
       return res.status(400).json({ message: "자기소개란을 작성해주세요." });
     }
 
-    if (user.userId !== userId) {
+    if (user !== userId) {
       return res.status(400).json({ message: "수정할 권한이 없습니다." });
     }
 
@@ -136,7 +136,7 @@ router.put("/posts/:postId", midddleware, async (req, res) => {
       return res.status(400).json({ message: "자기소개란을 작성해주세요." });
     }
 
-    if (user.userId !== userId) {
+    if (user !== userId) {
       return res.status(400).json({ message: "수정할 권한이 없습니다." });
     }
 
@@ -176,7 +176,7 @@ router.delete("/posts/:postId", midddleware, async (req, res) => {
       return res.status(400).json({ message: "게시글이 존재하지 않습니다." });
     }
 
-    if (user.userId !== userId) {
+    if (user !== userId) {
       return res.status(400).json({ message: "삭제할 권한이 없습니다." });
     }
 
