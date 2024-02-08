@@ -13,16 +13,12 @@ router.post("/posts/:postId/like", authMiddleware, async (req, res, next) => {
   return res.status(result.status).json({ message: result.message });
 });
 
-router.post(
-  "/comments/:commentId/like",
-  authMiddleware,
-  async (req, res, next) => {
-    const { commentId } = req.params;
-    const { userId } = req.user;
-    const result = await handleLike(prisma, "comment", commentId, userId);
-    return res.status(result.status).json({ message: result.message });
-  }
-);
+router.post("/comments/:commentId/like", authMiddleware, async (req, res, next) => {
+  const { commentId } = req.params;
+  const { userId } = req.user;
+  const result = await handleLike(prisma, "comment", commentId, userId);
+  return res.status(result.status).json({ message: result.message });
+});
 
 router.post("/reply/:replyId/like", authMiddleware, async (req, res, next) => {
   const { replyId } = req.params;

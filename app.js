@@ -7,7 +7,7 @@ import userRouter from "./src/routes/user.router.js";
 import postRouter from "./src/routes/posts.js";
 import likeRouter from "./src/routes/like.routes.js";
 import replyRouter from "./src/routes/reply.routes.js";
-
+import followRouter from "./src/routes/follow.routes.js";
 
 const app = express();
 
@@ -19,6 +19,7 @@ app.use(commentRouter);
 app.use(postRouter);
 app.use(likeRouter);
 app.use(replyRouter);
+app.use(followRouter);
 
 app.get("/", function (req, res) {
   res.send("Hello World");
