@@ -12,7 +12,8 @@ router.get("/mainpage", async (req, res) => {
         postId: true,
         title: true,
         content: true,
-        user: {
+
+        User: {
           select: {
             userId: true,
             email: true,
@@ -41,7 +42,7 @@ router.get("/posts/:postId", async (req, res) => {
         postId: +postId,
         title: true,
         content: true,
-        user: {
+        User: {
           select: {
             userId: true,
             email: true,
@@ -53,12 +54,16 @@ router.get("/posts/:postId", async (req, res) => {
       },
     });
 
+    if (user === null) {
+      return res
+        .status(400)
+        .json({ message: "원하는 목록이 존재하지 않습니다." });
+    }
     return res.status(201).json({ data: user });
   } catch (error) {
     console.error(error.message);
   }
 });
-
 router.post("/posts", authMiddleware, async (req, res) => {
   //// 뉴스 피드 작성
   try {
@@ -87,9 +92,14 @@ router.post("/posts", authMiddleware, async (req, res) => {
 
     const posts = await prisma.post.create({
       data: {
-        userId: +userId,
+
         title,
         content,
+        User: {
+          connect: {
+            userId: +userId,
+          },
+        },
       },
     });
 
@@ -99,7 +109,7 @@ router.post("/posts", authMiddleware, async (req, res) => {
   }
 });
 
-router.put("/posts/:postId", async (req, res) => {
+router.put("/posts/:postId", midddleware, async (req, res) => {
   //// 뉴스 피드 수정
   try {
     const { userId } = req.user;
@@ -144,14 +154,20 @@ router.put("/posts/:postId", async (req, res) => {
   }
 });
 
-router.delete("/posts/:postId", async (req, res) => {
+
+router.delete("/posts/:postId", midddleware, async (req, res) => {
   //// 뉴스 피드 삭제
   try {
     const { userId } = req.user;
     const { postId } = req.params;
 
-    const postdelte = await prisma.user.findUnique({
-      where: { userId: +userId },
+
+    const user = await prisma.user.findFirst({
+      where :{ userId : +userId}
+    });
+
+    const post = await prisma.post.findFirst({
+      where: { postId: +postId },
     });
 
     if (!userId) {
@@ -161,12 +177,21 @@ router.delete("/posts/:postId", async (req, res) => {
     if (!postId) {
       return res.status(400).json({ message: "게시글이 존재하지 않습니다." });
     }
-
-    if (postdelte.userId !== userId) {
+    if (user.userId !== userId) {
       return res.status(400).json({ message: "삭제할 권한이 없습니다." });
     }
 
-    return res.status(201).json({ message: "삭제 완료" });
+    if (post === null) {
+      return res.status(400).json({ message: "게시글이 존재하지 않습니다." });
+    }
+
+    await prisma.post.delete({
+      where: { postId: +postId },
+    });
+
+    return res.status(201).json({ message : "삭제 완료" });
+
+
   } catch (error) {
     console.error(error.message);
   }

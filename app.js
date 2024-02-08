@@ -1,10 +1,12 @@
 import express from "express";
 import "dotenv/config";
 import cookieParser from "cookie-parser";
+
 import commentRouter from "./src/routes/comments.routes.js";
 import userRouter from "./src/routes/user.router.js";
 import postRouter from "./src/routes/posts.js";
 import likeRouter from "./src/routes/like.routes.js";
+
 
 const app = express();
 
