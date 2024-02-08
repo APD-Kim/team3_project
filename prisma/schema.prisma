@@ -52,8 +52,10 @@ model Comment {
 model Like {
   likeId    BigInt   @id @default(autoincrement())
   userId    Int
-  postId    Int
+  postId    Int?
+  commentId Int?
   createdAt DateTime @default(now())
 
   @@unique([userId, postId])
+  @@unique([userId, commentId])
 }
