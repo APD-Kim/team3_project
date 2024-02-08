@@ -14,7 +14,7 @@ model User {
   userId    Int      @id @default(autoincrement())
   email     String   @unique
   password  String
-  name      String
+  name      String  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -32,6 +32,7 @@ model Post {
   userId    Int
   title     String
   content   String
+  postimg String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   like      Int      @default(0)
@@ -46,6 +47,7 @@ model Comment {
   userId    Int
   postId    Int
   content   String
+  commentimg  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   like      Int      @default(0)
