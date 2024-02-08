@@ -184,7 +184,7 @@ router.delete("/posts/:postId", authmiddleware, async (req, res) => {
     }
 
 
-    if (user.userId !== userId) {
+    if (user !== userId) {
 
       return res.status(400).json({ message: "삭제할 권한이 없습니다." });
     }
