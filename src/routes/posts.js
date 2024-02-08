@@ -64,7 +64,10 @@ router.get("/posts/:postId", async (req, res) => {
     console.error(error.message);
   }
 });
+
+
 router.post("/posts", authMiddleware, async (req, res) => {
+
   //// 뉴스 피드 작성
   try {
     const { userId } = req.user;
@@ -86,10 +89,6 @@ router.post("/posts", authMiddleware, async (req, res) => {
       return res.status(400).json({ message: "자기소개란을 작성해주세요." });
     }
 
-    if (user.userId !== userId) {
-      return res.status(400).json({ message: "수정할 권한이 없습니다." });
-    }
-
     const posts = await prisma.post.create({
       data: {
 
@@ -109,7 +108,7 @@ router.post("/posts", authMiddleware, async (req, res) => {
   }
 });
 
-router.put("/posts/:postId", midddleware, async (req, res) => {
+router.put("/posts/:postId", authMiddleware, async (req, res) => {
   //// 뉴스 피드 수정
   try {
     const { userId } = req.user;
@@ -136,7 +135,7 @@ router.put("/posts/:postId", midddleware, async (req, res) => {
       return res.status(400).json({ message: "자기소개란을 작성해주세요." });
     }
 
-    if (user.userId !== userId) {
+    if (user !== userId) {
       return res.status(400).json({ message: "수정할 권한이 없습니다." });
     }
 
@@ -155,7 +154,9 @@ router.put("/posts/:postId", midddleware, async (req, res) => {
 });
 
 
-router.delete("/posts/:postId", midddleware, async (req, res) => {
+
+router.delete("/posts/:postId", authMiddleware, async (req, res) => {
+
   //// 뉴스 피드 삭제
   try {
     const { userId } = req.user;
@@ -177,7 +178,9 @@ router.delete("/posts/:postId", midddleware, async (req, res) => {
     if (!postId) {
       return res.status(400).json({ message: "게시글이 존재하지 않습니다." });
     }
-    if (user.userId !== userId) {
+
+
+    if (user !== userId) {
       return res.status(400).json({ message: "삭제할 권한이 없습니다." });
     }
 
