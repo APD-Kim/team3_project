@@ -6,10 +6,10 @@ const router = express.Router();
 
 
 
-router.get("/", async (req, res) => {
+router.get("/mainpage", async (req, res) => {
     //// 뉴스 피드 모든 목록 조회
   try {
-    
+    1
     const user = await prisma.post.findMany({
       select: {
         postId: true,
@@ -29,7 +29,7 @@ router.get("/", async (req, res) => {
 
     return res.status(201).json({ data: user });
   } catch (error) {
-    console.error(error.name);
+    console.error(error.message);
   }
 });
 
@@ -58,7 +58,7 @@ router.get("/posts/:postId", async (req, res) => {
 
     return res.status(201).json({ data: user });
   } catch (error) {
-    console.error(error.name);
+    console.error(error.message);
   }
 });
 
@@ -70,6 +70,8 @@ try {
   const { postId } = req.params;
   const { title, content } = req.body;
 
+
+  
   const user = await prisma.user.findFirst({
       where : {userId : +userId}
   });
@@ -109,7 +111,7 @@ try {
 
   return res.status(201).json({ data: posts });
 } catch (error) {
-  console.error(error.name);
+  console.error(error.message);
 }
 });
 
@@ -157,7 +159,7 @@ router.put("/posts/:postId", async (req, res) => {
  
     return res.status(201).json({ data: postput });
   } catch (error) {
-    console.error(error.name);
+    console.error(error.message);
   }
 });
 
@@ -188,7 +190,7 @@ router.delete("/posts/:postId", async (req, res) => {
 
     return res.status(201).json({ message : "삭제 완료" });
   } catch (error) {
-    console.error(error.name);
+    console.error(error.message);
   }
 });
 
