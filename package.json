@@ -11,5 +11,14 @@
     "nodemailer": "^6.9.9",
     "prisma": "^5.9.1",
     "rand-token": "^1.0.1"
+  },
+  "name": "team3_project",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/APD-Kim/team3_project.git",
+  "author": "gimmingeon <mnbqwe123987@naver.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "nodemon": "^3.0.3"
   }
 }
