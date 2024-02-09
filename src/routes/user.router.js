@@ -99,9 +99,9 @@ router.post("/sign-up", async (req, res, next) => {
            data: { email, password: hashedPassword, name },
          });
     
-    return res.status(201).json({ data: user, message: '이메일 인증이 성공적으로 완료되었습니다.' });
+    return res.status(201).json({ data: user, message: '이메일 인증이 성공하였습니다' });
   } else {
-    return res.status(400).json({ message: '이메일 인증이 실패했습니다. 올바른 숫자를 입력하세요.' });
+    return res.status(400).json({ message: '이메일 인증이 실패했습니다. 다시 확인하세요' });
   }
 });
 
