@@ -8,6 +8,11 @@ const router = express.Router();
 router.post("/follow/:followId", authMiddleware, async (req, res, next) => {
   const { followId } = req.params; //팔로우 당하는 사람
   const { userId } = req.user; //팔로우 하는 사람
+  console.log(followId);
+  console.log(userId);
+  if (followId == userId) {
+    return res.status(400).json({ message: "자기 자신을 팔로우 할수 없습니다." });
+  }
   try {
     const follower = await prisma.user.findFirst({
       where: { userId: Number(followId) },
@@ -82,6 +87,42 @@ router.post("/follow/:followId/posts", authMiddleware, async (req, res, next) =>
     return res.status(400).json({ message: "게시물을 찾을 수 없습니다." });
   }
   res.status(200).json({ data: searchPost });
+});
+
+//누가 날 팔로우했는지 한번에 보기
+router.get("/follow/users", authMiddleware, async (req, res, next) => {
+  const { userId } = req.user; //나
+
+  const searchFollow = await prisma.follow.findMany({
+    where: {
+      following: Number(userId),
+    },
+    select: {
+      follower: true,
+    },
+  });
+  if (searchFollow.length === 0) {
+    return res.status(400).json({ message: "당신을 팔로우 한 사람이 아무도 없습니다." });
+  }
+  //만약 팔로우한 사람이 있다면,
+  res.status(200).json({ data: searchFollow });
+});
+
+//내가 팔로우한 사람 한번에 보기
+router.get("/follow/users/me", authMiddleware, async (req, res, next) => {
+  const { userId } = req.user; //나
+
+  const searchFollow = await prisma.follow.findMany({
+    where: {
+      follower: Number(userId),
+    },
+    select: { following: true },
+  });
+  if (searchFollow.length === 0) {
+    return res.status(400).json({ message: "당신이 팔로우 한 사람이 아무도 없습니다." });
+  }
+  //만약 팔로우한 사람이 있다면,
+  res.status(200).json({ data: searchFollow });
 });
 
 export default router;

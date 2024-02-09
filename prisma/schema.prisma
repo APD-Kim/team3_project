@@ -69,7 +69,6 @@ model Like {
 }
 
 model Follow {
-  followId  BigInt   @id @default(autoincrement())
   follower  Int
   following Int
   createdAt DateTime @default(now())
@@ -78,6 +77,8 @@ model Follow {
   followingUser User @relation("UserFollows", fields: [following], references: [userId])
   // 팔로워
   followerUser  User @relation("UserFollowedBy", fields: [follower], references: [userId])
+
+  @@id([follower, following])
 }
 
 model Reply {
