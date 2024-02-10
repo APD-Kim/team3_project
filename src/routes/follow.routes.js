@@ -8,8 +8,6 @@ const router = express.Router();
 router.post("/follow/:followId", authMiddleware, async (req, res, next) => {
   const { followId } = req.params; //팔로우 당하는 사람
   const { userId } = req.user; //팔로우 하는 사람
-  console.log(followId);
-  console.log(userId);
   if (followId == userId) {
     return res.status(400).json({ message: "자기 자신을 팔로우 할수 없습니다." });
   }
@@ -68,6 +66,10 @@ router.post("/follow/:followId", authMiddleware, async (req, res, next) => {
 router.post("/follow/:followId/posts", authMiddleware, async (req, res, next) => {
   const { followId } = req.params; //팔로우 한 유저
   const { userId } = req.user; //나
+
+  if (followId == userId) {
+    return res.status(400).json({ message: "자기 자신을 팔로우 할수 없습니다." });
+  }
 
   const searchFollow = await prisma.follow.findFirst({
     where: {

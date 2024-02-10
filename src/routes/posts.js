@@ -1,13 +1,14 @@
 import express from "express";
 import { prisma } from "../utils/index.js";
 import authMiddleware from "../middleware/auth.middleware.js";
+import { redisCli } from "../../app.js";
 
 const router = express.Router();
 
 //쿼리 데이터 집계
-//예 : dc 
+//예 : dc
 //메모리를 쓰지 안흥면 = 게시판 -> 모든 데이터 조회수를 가지고 join
-//폴링 
+//폴링
 
 router.get("/mainpage", async (req, res) => {
   //// 뉴스 피드 모든 목록 조회
@@ -38,16 +39,27 @@ router.get("/mainpage", async (req, res) => {
 });
 
 router.get("/posts/:postId", async (req, res) => {
-  //// 뉴스피드 게시글 상세 목록 조회
   try {
     const { postId } = req.params;
-
+    const { uid } = req.cookies;
+    
+    const uidExists = await redisCli.exists(uid);
+    console.log(uidExists);
+    //유효성검사를 실시하고 통과하면 로직 실행
+    //토큰이 사라졌어
+    // 눌렀을때 조회수 1 증가
+    const increaseView = await redisCli.incr(`post:${postId}:view`);
+    //눌렀던 유저 추적(1분간)
+    const expireKey = `post:view:${postId}`;
+    const result = await redisCli.zAdd(`post:view:${postId}`, [{ score: timestamp, value: "4" }]);
     const user = await prisma.post.findFirst({
       where: { postId: +postId },
       select: {
         postId: +postId,
         title: true,
         content: true,
+        like: true,
+        view: true,
         User: {
           select: {
             userId: true,

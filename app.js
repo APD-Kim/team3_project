@@ -10,6 +10,7 @@ import likeRouter from "./src/routes/like.routes.js";
 import replyRouter from "./src/routes/reply.routes.js";
 import followRouter from "./src/routes/follow.routes.js";
 import redisTestRouter from "./src/routes/test.js";
+import nonMemberAuthMiddleware from "./src/middleware/nonMember.auth.middleware.js";
 
 const redisClient = redis.createClient({
   url: `${process.env.REDIS}`,
@@ -22,13 +23,14 @@ redisClient.on("error", (err) => {
   console.error("Redis Client Error", err);
 });
 redisClient.connect().then();
-export const redisCli = redisClient.v4; 
+export const redisCli = redisClient.v4;
 
 const app = express();
 
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(nonMemberAuthMiddleware);
 app.use(userRouter);
 app.use(commentRouter);
 app.use(postRouter);
