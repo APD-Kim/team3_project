@@ -105,4 +105,5 @@ enum Provider {
   naver
   github
   steam
+  user
 }

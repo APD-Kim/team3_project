@@ -5,6 +5,7 @@ import { redisCli } from "../../app.js";
 
 export default async function (req, res, next) {
   try {
+    //접속하지 않은 사용자도 
     let { uid } = req.cookies;
     console.log(3);
     if (!uid) {
@@ -15,9 +16,6 @@ export default async function (req, res, next) {
       res.cookie("uid", token, { httpOnly: true, maxAge: 1000 * 60 * 60 });
       uid = newUid;
     }
-    //생성했으면 해당 rand-token을 레디스에 저장 (1시간 만료기한)
-    await redisCli.set(`${uid}`, "1");
-    await redisCli.expire(`${uid}`, 3600);
 
     next();
   } catch (error) {

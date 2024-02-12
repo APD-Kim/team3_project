@@ -10,9 +10,7 @@ const router = express.Router();
 //메모리를 쓰지 안흥면 = 게시판 -> 모든 데이터 조회수를 가지고 join
 //폴링
 
-router.get("/mainpage", async (req, res) => {
-  //// 뉴스 피드 모든 목록 조회
-  const countLike = await redisCli.zCard(`post:like:${postId}`);
+router.get("/", async (req, res) => {
   try {
     const user = await prisma.post.findMany({
       select: {
@@ -31,8 +29,7 @@ router.get("/mainpage", async (req, res) => {
         updatedAt: true,
       },
     });
-
-    return res.status(201).json({ data: user });
+    res.render("index");
   } catch (error) {
     console.error(error.message);
   }
@@ -42,17 +39,24 @@ router.get("/posts/:postId", async (req, res) => {
   try {
     const { postId } = req.params;
     const { uid } = req.cookies;
-    
-    const uidExists = await redisCli.exists(uid);
-    console.log(uidExists);
-    //유효성검사를 실시하고 통과하면 로직 실행
-    //토큰이 사라졌어
-    // 눌렀을때 조회수 1 증가
-    const increaseView = await redisCli.incr(`post:${postId}:view`);
-    //눌렀던 유저 추적(1분간)
-    const expireKey = `post:view:${postId}`;
-    const result = await redisCli.zAdd(`post:view:${postId}`, [{ score: timestamp, value: "4" }]);
-    const user = await prisma.post.findFirst({
+    //uid는 조회한 게시물 추적용
+    const expireKey = `post:view:expire:${postId}:${uid}`;
+    const uidExists = await redisCli.get(expireKey);
+    if (!uidExists) {
+      //해당 uid가 레디스에 없다면
+      await redisCli.incr(`post:${postId}:view`);
+      await redisCli.set(expireKey, "1", { EX: 60 });
+      await prisma.post.update({
+        where: { postId: +postId },
+        data: {
+          view: {
+            increment: 1,
+          },
+        },
+      });
+    }
+
+    const post = await prisma.post.findFirst({
       where: { postId: +postId },
       select: {
         postId: +postId,
@@ -72,10 +76,10 @@ router.get("/posts/:postId", async (req, res) => {
       },
     });
 
-    if (user === null) {
+    if (post === null) {
       return res.status(400).json({ message: "원하는 목록이 존재하지 않습니다." });
     }
-    return res.status(201).json({ data: user });
+    return res.status(201).json({ data: post });
   } catch (error) {
     console.error(error.message);
   }
