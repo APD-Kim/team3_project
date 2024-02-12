@@ -11,6 +11,8 @@ import replyRouter from "./src/routes/reply.routes.js";
 import followRouter from "./src/routes/follow.routes.js";
 import redisTestRouter from "./src/routes/test.js";
 import nonMemberAuthMiddleware from "./src/middleware/nonMember.auth.middleware.js";
+import authRouter from "./src/routes/auth.routes.js";
+import pageRouter from "./src/routes/page.routes.js";
 
 const redisClient = redis.createClient({
   url: `${process.env.REDIS}`,
@@ -26,11 +28,12 @@ redisClient.connect().then();
 export const redisCli = redisClient.v4;
 
 const app = express();
-
+app.set("view engine", "ejs");
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(nonMemberAuthMiddleware);
+app.use(pageRouter);
 app.use(userRouter);
 app.use(commentRouter);
 app.use(postRouter);
@@ -38,9 +41,10 @@ app.use(likeRouter);
 app.use(replyRouter);
 app.use(followRouter);
 app.use(redisTestRouter);
+app.use(authRouter);
 
 app.get("/", function (req, res) {
-  res.send("Hello World");
+  res.render("index");
 });
 
 app.listen(process.env.PORT, () => {
