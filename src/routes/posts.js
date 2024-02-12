@@ -12,24 +12,32 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
-    const user = await prisma.post.findMany({
-      select: {
-        postId: true,
-        title: true,
-        content: true,
+    const cache = "mainPageCache";
+    const CachedPosts = await redisCli.get(cache);
+    if (CachedPosts) {
+      res.render("index", { post: JSON.parse(CachedPosts) });
+    } else {
+      const posts = await prisma.post.findMany({
+        select: {
+          postId: true,
+          title: true,
+          content: true,
 
-        User: {
-          select: {
-            userId: true,
-            email: true,
-            name: true,
+          User: {
+            select: {
+              userId: true,
+              email: true,
+              name: true,
+            },
           },
+          createdAt: true,
+          updatedAt: true,
         },
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
-    res.render("index");
+      });
+    }
+    await redisCli.setex(cache,3600,JSON.stringify())
+
+    res.render("index", { posts: JSON.stringify(posts) });
   } catch (error) {
     console.error(error.message);
   }
