@@ -69,9 +69,9 @@ router.post("/login1", async (req, res, next) => {
 });
 
 // 로그아웃 api
-router.post("/logout", authMiddleware, async (req, res, next) => {
+router.get("/logout", authMiddleware, async (req, res, next) => {
   res.clearCookie("authorization");
-  return res.status(200).json({ message: "로그아웃에 성공하였습니다" });
+  return res.redirect("/");
 });
 
 export default router;

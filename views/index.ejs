@@ -4,9 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    
+    <%- include('nav.ejs')%> <% for( let i = 0; i < post.length; i++ ) { %>
+    <div class="post">
+      <h2><%= post[i].title %></h2>
+      <p><%= post[i].content %></p>
+      <p>작성자: <%= post[i].User.name %></p>
+    </div>
+    <% } %>
     <h1><a href="/logins">로그인</a></h1>
     <br />
     <h1>회원가입</h1>
