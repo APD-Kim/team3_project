@@ -5,6 +5,23 @@ import { redisCli } from "../../app.js";
 
 const router = express.Router();
 
+
+router.get("/mainpage", async (req, res) => {
+  //// 뉴스 피드 모든 목록 조회
+  try {
+    const user = await prisma.post.findMany({
+      select: {
+        postId: true,
+        title: true,
+        content: true,
+        like: true,
+        postimg: true,
+        User: {
+          select: {
+            userId: true,
+            email: true,
+            name: true,
+=======
 //쿼리 데이터 집계
 //예 : dc
 //메모리를 쓰지 안흥면 = 게시판 -> 모든 데이터 조회수를 가지고 join
@@ -37,6 +54,7 @@ router.get("/", async (req, res) => {
     }
     await redisCli.setex(cache,3600,JSON.stringify())
 
+    return res.status(200).json({ data: user });
     res.render("index", { posts: JSON.stringify(posts) });
   } catch (error) {
     console.error(error.message);
@@ -71,6 +89,7 @@ router.get("/posts/:postId", async (req, res) => {
         title: true,
         content: true,
         like: true,
+        postimg: true,
         view: true,
         User: {
           select: {
@@ -99,10 +118,6 @@ router.post("/posts", authMiddleware, async (req, res) => {
     const { userId } = req.user;
     const { title, content } = req.body;
 
-    const user = await prisma.user.findFirst({
-      where: { userId: +userId },
-    });
-
     if (!userId) {
       return res.status(400).json({ message: "유저가 존재하지 않습니다." });
     }
@@ -127,7 +142,7 @@ router.post("/posts", authMiddleware, async (req, res) => {
       },
     });
 
-    return res.status(201).json({ data: posts });
+    return res.status(200).json({ data: posts });
   } catch (error) {
     console.error(error.message);
   }
@@ -140,15 +155,15 @@ router.put("/posts/:postId", authMiddleware, async (req, res) => {
     const { postId } = req.params;
     const { title, content } = req.body;
 
-    const user = await prisma.user.findFirst({
-      where: { userId: +userId },
+    const post = await prisma.post.findFirst({
+      where: { postId: +postId },
     });
 
     if (!userId) {
       return res.status(400).json({ message: "유저가 존재하지 않습니다." });
     }
 
-    if (!postId) {
+    if (!post) {
       return res.status(400).json({ message: "게시글이 존재하지 않습니다." });
     }
 
@@ -160,8 +175,8 @@ router.put("/posts/:postId", authMiddleware, async (req, res) => {
       return res.status(400).json({ message: "자기소개란을 작성해주세요." });
     }
 
-    if (user !== userId) {
-      return res.status(400).json({ message: "수정할 권한이 없습니다." });
+    if (post.userId !== userId) {
+      return res.status(401).json({ message: "수정할 권한이 없습니다." });
     }
 
     const postput = await prisma.post.update({
@@ -172,7 +187,7 @@ router.put("/posts/:postId", authMiddleware, async (req, res) => {
       },
     });
 
-    return res.status(201).json({ data: postput });
+    return res.status(200).json({ data: postput });
   } catch (error) {
     console.error(error.message);
   }
@@ -184,9 +199,6 @@ router.delete("/posts/:postId", authMiddleware, async (req, res) => {
     const { userId } = req.user;
     const { postId } = req.params;
 
-    const user = await prisma.user.findFirst({
-      where: { userId: +userId },
-    });
 
     const post = await prisma.post.findFirst({
       where: { postId: +postId },
@@ -196,23 +208,21 @@ router.delete("/posts/:postId", authMiddleware, async (req, res) => {
       return res.status(400).json({ message: "유저가 존재하지 않습니다." });
     }
 
-    if (!postId) {
+    if (!post) {
       return res.status(400).json({ message: "게시글이 존재하지 않습니다." });
     }
 
-    if (user !== userId) {
-      return res.status(400).json({ message: "삭제할 권한이 없습니다." });
-    }
+    
+    if (post.userId !== userId) {
+      return res.status(401).json({ message: "삭제할 권한이 없습니다." });
 
-    if (post === null) {
-      return res.status(400).json({ message: "게시글이 존재하지 않습니다." });
-    }
 
     await prisma.post.delete({
       where: { postId: +postId },
     });
 
-    return res.status(201).json({ message: "삭제 완료" });
+
+    return res.status(200).json({ message: "삭제 완료" });
   } catch (error) {
     console.error(error.message);
   }

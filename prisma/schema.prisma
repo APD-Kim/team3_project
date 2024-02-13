@@ -19,6 +19,8 @@ model User {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   follower  Int       @default(0)
+
+
   provider  Provider?
   Post      Post[]
   Comment   Comment[]
@@ -34,6 +36,7 @@ model Post {
   userId    Int
   title     String
   content   String
+  postimg String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   like      Int      @default(0)
@@ -46,6 +49,14 @@ model Post {
 }
 
 model Comment {
+  commentId Int      @id @default(autoincrement())
+  userId    Int
+  postId    Int
+  content   String
+  commentimg  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  like      Int      @default(0)
   commentId  Int      @id @default(autoincrement())
   userId     Int
   postId     Int
