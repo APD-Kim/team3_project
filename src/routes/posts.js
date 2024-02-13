@@ -12,7 +12,8 @@ router.get("/mainpage", async (req, res) => {
         postId: true,
         title: true,
         content: true,
-
+        like: true,
+        postimg: true,
         User: {
           select: {
             userId: true,
@@ -25,7 +26,7 @@ router.get("/mainpage", async (req, res) => {
       },
     });
 
-    return res.status(201).json({ data: user });
+    return res.status(200).json({ data: user });
   } catch (error) {
     console.error(error.message);
   }
@@ -42,6 +43,8 @@ router.get("/posts/:postId", async (req, res) => {
         postId: +postId,
         title: true,
         content: true,
+        like: true,
+        postimg: true,
         User: {
           select: {
             userId: true,
@@ -57,25 +60,20 @@ router.get("/posts/:postId", async (req, res) => {
     if (user === null) {
       return res
         .status(400)
-        .json({ message: "원하는 목록이 존재하지 않습니다." });
+        .json({ message: "조회한 목록이 존재하지 않습니다." });
     }
-    return res.status(201).json({ data: user });
+    
+    return res.status(200).json({ data: user });
   } catch (error) {
     console.error(error.message);
   }
 });
 
-
 router.post("/posts", authMiddleware, async (req, res) => {
-
   //// 뉴스 피드 작성
   try {
     const { userId } = req.user;
     const { title, content } = req.body;
-
-    const user = await prisma.user.findFirst({
-      where: { userId: +userId },
-    });
 
     if (!userId) {
       return res.status(400).json({ message: "유저가 존재하지 않습니다." });
@@ -91,7 +89,6 @@ router.post("/posts", authMiddleware, async (req, res) => {
 
     const posts = await prisma.post.create({
       data: {
-
         title,
         content,
         User: {
@@ -102,7 +99,7 @@ router.post("/posts", authMiddleware, async (req, res) => {
       },
     });
 
-    return res.status(201).json({ data: posts });
+    return res.status(200).json({ data: posts });
   } catch (error) {
     console.error(error.message);
   }
@@ -115,15 +112,15 @@ router.put("/posts/:postId", authMiddleware, async (req, res) => {
     const { postId } = req.params;
     const { title, content } = req.body;
 
-    const user = await prisma.user.findFirst({
-      where: { userId: +userId },
+    const post = await prisma.post.findFirst({
+      where: { postId: +postId },
     });
 
     if (!userId) {
       return res.status(400).json({ message: "유저가 존재하지 않습니다." });
     }
 
-    if (!postId) {
+    if (!post) {
       return res.status(400).json({ message: "게시글이 존재하지 않습니다." });
     }
 
@@ -135,8 +132,8 @@ router.put("/posts/:postId", authMiddleware, async (req, res) => {
       return res.status(400).json({ message: "자기소개란을 작성해주세요." });
     }
 
-    if (user !== userId) {
-      return res.status(400).json({ message: "수정할 권한이 없습니다." });
+    if (post.userId !== userId) {
+      return res.status(401).json({ message: "수정할 권한이 없습니다." });
     }
 
     const postput = await prisma.post.update({
@@ -147,25 +144,17 @@ router.put("/posts/:postId", authMiddleware, async (req, res) => {
       },
     });
 
-    return res.status(201).json({ data: postput });
+    return res.status(200).json({ data: postput });
   } catch (error) {
     console.error(error.message);
   }
 });
 
-
-
 router.delete("/posts/:postId", authMiddleware, async (req, res) => {
-
   //// 뉴스 피드 삭제
   try {
     const { userId } = req.user;
     const { postId } = req.params;
-
-
-    const user = await prisma.user.findFirst({
-      where :{ userId : +userId}
-    });
 
     const post = await prisma.post.findFirst({
       where: { postId: +postId },
@@ -175,26 +164,19 @@ router.delete("/posts/:postId", authMiddleware, async (req, res) => {
       return res.status(400).json({ message: "유저가 존재하지 않습니다." });
     }
 
-    if (!postId) {
+    if (!post) {
       return res.status(400).json({ message: "게시글이 존재하지 않습니다." });
     }
 
-
-    if (user !== userId) {
-      return res.status(400).json({ message: "삭제할 권한이 없습니다." });
-    }
-
-    if (post === null) {
-      return res.status(400).json({ message: "게시글이 존재하지 않습니다." });
+    if (post.userId !== userId) {
+      return res.status(401).json({ message: "삭제할 권한이 없습니다." });
     }
 
     await prisma.post.delete({
       where: { postId: +postId },
     });
 
-    return res.status(201).json({ message : "삭제 완료" });
-
-
+    return res.status(200).json({ message: "삭제 완료" });
   } catch (error) {
     console.error(error.message);
   }
