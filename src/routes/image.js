@@ -45,7 +45,7 @@ router.post("/image/:postId", authMiddleware, upload.single("image"), async (req
           postimg,
         },
       });
-      return res.status(200).json({ data: posts });
+      return res.status(201).json({ data: posts });
     } catch (error) {
       console.error(error.message);
       if (!upload) throw new Error("메시지 업로드 오류");
