@@ -12,13 +12,16 @@ datasource db {
 
 model User {
   userId    Int       @id @default(autoincrement())
-  email     String    @unique
-  password  String
+  snsId     String?
+  email     String?   @unique
+  password  String?
   name      String
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   follower  Int       @default(0)
 
+
+  provider  Provider?
   Post      Post[]
   Comment   Comment[]
   // 팔로우하는 사용자 관계
@@ -37,6 +40,8 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   like      Int      @default(0)
+  view      Int      @default(0)
+  postImg   String?
 
   Comment Comment[]
 
@@ -52,6 +57,14 @@ model Comment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   like      Int      @default(0)
+  commentId  Int      @id @default(autoincrement())
+  userId     Int
+  postId     Int
+  content    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  like       Int      @default(0)
+  commentImg String?
 
   User  User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
   Post  Post    @relation(fields: [postId], references: [postId], onDelete: Cascade)
@@ -72,7 +85,6 @@ model Like {
 }
 
 model Follow {
-  followId  BigInt   @id @default(autoincrement())
   follower  Int
   following Int
   createdAt DateTime @default(now())
@@ -81,6 +93,8 @@ model Follow {
   followingUser User @relation("UserFollows", fields: [following], references: [userId])
   // 팔로워
   followerUser  User @relation("UserFollowedBy", fields: [follower], references: [userId])
+
+  @@id([follower, following])
 }
 
 model Reply {
@@ -94,4 +108,13 @@ model Reply {
 
   User    User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
   Comment Comment @relation(fields: [commentId], references: [commentId], onDelete: Cascade)
+}
+
+enum Provider {
+  kakao
+  google
+  naver
+  github
+  steam
+  user
 }
