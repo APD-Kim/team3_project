@@ -9,14 +9,13 @@
   <body>
     <%- include('nav.ejs')%> <% for( let i = 0; i < post.length; i++ ) { %>
     <div class="post">
-      <h2><%= post[i].title %></h2>
+      <h2><a href="/posts/<%= post[i].postId%>"><%= post[i].title %></a></h2>
       <p><%= post[i].content %></p>
-      <p>작성자: <%= post[i].User.name %></p>
+      <p>작성자: <a href="/user/<%= post[i].User.userId %>"><%= post[i].User.name %></a></p>
+      <p>좋아요 : <%= post[i].like %></p>
+      <p>조회수 : <%= post[i].view %></p>
     </div>
     <% } %>
-    <h1><a href="/logins">로그인</a></h1>
-    <br />
-    <h1>회원가입</h1>
-    <a href="/sign-up">Sign Up</a>
+    <script></script>
   </body>
 </html>

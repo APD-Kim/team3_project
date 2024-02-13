@@ -57,7 +57,7 @@ router.get(
     if (req.user) {
       console.log(req.user);
       const token = jwt.sign({ userId: req.user.userId }, "custom-secret-key", { expiresIn: "8h" });
-      res.cookie("authorization", `Bearer ${token}`);
+      res.cookie("authorization", `Bearer ${token}`, { maxAge: 1000 * 60 * 60 * 8 });
       console.log("good");
       res.redirect("/"); // 또는 인증 성공 후 사용자를 리다이렉트할 다른 경로
     } else {
@@ -110,8 +110,8 @@ router.get("/google-login/redirect", async (req, res) => {
   });
   if (search) {
     //이미 가입한 이메일이 있다면 바로 로그인 시켜버리기
-    const token = jwt.sign({ userId: search.userId }, "custom-secret-key", { expiresIn: "1h" });
-    res.cookie("authorization", `Bearer ${token}`);
+    const token = jwt.sign({ userId: search.userId }, "custom-secret-key", { expiresIn: "8h" });
+    res.cookie("authorization", `Bearer ${token}`, { maxAge: 1000 * 60 * 60 * 8 });
     return res.redirect("/");
   }
   //이메일이 없다면

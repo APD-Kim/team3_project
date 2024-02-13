@@ -6,6 +6,8 @@
   <% } else { %>
   <a href="/logins">로그인</a>
   <% } %>
-  <a href="/mypage">마이페이지</a>
-  <a href="/register">가입하기</a>
+  <a href="/me">마이페이지</a>
+  <% if (!isAuthenticated) { %>
+  <a href="/sign-up">가입하기</a>
+  <% } %>
 </div>

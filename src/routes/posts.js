@@ -12,35 +12,30 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
-    const cache = "mainPageCache";
-    const cachedPosts = await redisCli.get(cache);
-    if (cachedPosts) {
-      res.render("index", { post: JSON.parse(cachedPosts) });
-    } else {
-      const posts = await prisma.post.findMany({
-        select: {
-          postId: true,
-          title: true,
-          content: true,
-          User: {
-            select: {
-              userId: true,
-              email: true,
-              name: true,
-            },
+    const posts = await prisma.post.findMany({
+      select: {
+        postId: true,
+        title: true,
+        content: true,
+        like: true,
+        view: true,
+        User: {
+          select: {
+            userId: true,
+            email: true,
+            name: true,
           },
-          createdAt: true,
-          updatedAt: true,
         },
-      });
-      await redisCli.set(cache, JSON.stringify(posts), { EX: 3600 });
-      res.render("index", { post: posts });
-    }
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+    res.render("index", { post: posts });
   } catch (error) {
     res.status(500).send("Internal Server Error");
   }
 });
-
+//상세 페이지
 router.get("/posts/:postId", async (req, res) => {
   try {
     const { postId } = req.params;
@@ -65,7 +60,7 @@ router.get("/posts/:postId", async (req, res) => {
     const post = await prisma.post.findFirst({
       where: { postId: +postId },
       select: {
-        postId: +postId,
+        postId: true,
         title: true,
         content: true,
         like: true,
@@ -82,10 +77,14 @@ router.get("/posts/:postId", async (req, res) => {
       },
     });
 
+    const comment = await prisma.comment.findMany({
+      where: { postId: +postId },
+    });
+
     if (post === null) {
       return res.status(400).json({ message: "원하는 목록이 존재하지 않습니다." });
     }
-    return res.status(201).json({ data: post });
+    return res.status(201).render("detail", { post: post, comment: comment });
   } catch (error) {
     console.error(error.message);
   }

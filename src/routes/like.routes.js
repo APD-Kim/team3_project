@@ -8,6 +8,7 @@ import { redisCli } from "../../app.js";
 const router = express.Router();
 
 router.post("/post/:postId/like", authMiddleware, async (req, res, next) => {
+  console.log(1);
   const { postId } = req.params;
   const { userId } = req.user;
   const result = await handleLike(prisma, "post", postId, userId);

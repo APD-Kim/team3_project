@@ -7,6 +7,10 @@ import authMiddleware from "../middleware/auth.middleware.js";
 const router = express.Router();
 
 //회원가입api
+
+router.get("/sign-up", async (req, res, next) => {
+  res.render("signup");
+});
 router.post("/sign-up", async (req, res, next) => {
   const { email, password, passwordconfirm, name } = req.body;
 
@@ -64,7 +68,7 @@ router.post("/login1", async (req, res, next) => {
     return res.status(403).json({ message: "비밀번호가 일치하지 않습니다" });
   }
   const token = jwt.sign({ userId: user.userId }, "custom-secret-key");
-  res.cookie("authorization", `Bearer ${token}`);
+  res.cookie("authorization", `Bearer ${token}`, { maxAge: 1000 * 60 * 60 * 8 });
   return res.status(200).json({ message: "로그인에 성공하였습니다" });
 });
 
@@ -72,6 +76,26 @@ router.post("/login1", async (req, res, next) => {
 router.get("/logout", authMiddleware, async (req, res, next) => {
   res.clearCookie("authorization");
   return res.redirect("/");
+});
+
+router.get("/me", authMiddleware, async (req, res, next) => {
+  const user = await prisma.user.findFirst({ where: { userId: req.user.userId } });
+  return res.render("mypage", { user: user });
+});
+
+router.get("/user/:userId", authMiddleware, async (req, res, next) => {
+  const { userId } = req.params;
+  const posts = await prisma.post.findMany({
+    where: {
+      userId: +userId,
+    },
+  });
+  const user = await prisma.user.findUnique({
+    where: {
+      userId: +userId,
+    },
+  });
+  return res.render("users", { user: user, post: posts });
 });
 
 export default router;
