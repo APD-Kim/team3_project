@@ -8,7 +8,8 @@
   </head>
   <body>
     <%- include('nav.ejs')%> <% for( let i = 0; i < post.length; i++ ) { %>
-    <div class="post">
+    <p>메인 페이지</p>
+      <div class="post">
       <h2><a href="/posts/<%= post[i].postId%>"><%= post[i].title %></a></h2>
       <p><%= post[i].content %></p>
       <p>작성자: <a href="/user/<%= post[i].User.userId %>"><%= post[i].User.name %></a></p>

@@ -181,7 +181,6 @@ router.put("/posts/:postId", authMiddleware, async (req, res) => {
 
 router.delete("/posts/:postId", authMiddleware, async (req, res) => {
   //// 뉴스 피드 삭제
-  try {
     const { userId } = req.user;
     const { postId } = req.params;
 
@@ -200,16 +199,16 @@ router.delete("/posts/:postId", authMiddleware, async (req, res) => {
     if (post.userId !== userId) {
       return res.status(401).json({ message: "삭제할 권한이 없습니다." });
     }
-
+    try {
       await prisma.post.delete({
         where: { postId: +postId },
       });
+  
+      return res.status(200).json({ message: "삭제 완료" });
+    } catch (error) {
+      console.error("삭제 중 오류 발생:", error);
+      return res.status(500).json({ message: "서버 오류로 인해 삭제에 실패했습니다." });
     }
-
-    return res.status(200).json({ message: "삭제 완료" });
-  } catch (error) {
-    console.error(error.message);
-  }
-});
+  })
 
 export default router;
