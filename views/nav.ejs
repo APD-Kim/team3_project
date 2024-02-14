@@ -1,0 +1,13 @@
+<div class="nav">
+  <a class="logo" href="/">TEAM3</a>
+  <a href="/write">글쓰기</a>
+  <% if (isAuthenticated) { %>
+  <a href="/logout">로그아웃</a>
+  <% } else { %>
+  <a href="/logins">로그인</a>
+  <% } %>
+  <a href="/me">마이페이지</a>
+  <% if (!isAuthenticated) { %>
+  <a href="/sign-up">가입하기</a>
+  <% } %>
+</div>
