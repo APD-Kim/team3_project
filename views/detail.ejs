@@ -25,7 +25,10 @@
       <p>닉네임 : <%= comment[i].User.name %></p>
       <p><%= comment[i].content %></p>
       <p><%= comment[i].createdAt %></p>
-      <button id="<%= comment[i].commentId %>">좋아요</button>
+      <p>좋아요 수 : <%= comment[i].like %></p>
+      <button data-comment-id="<%= comment[i].commentId %>" class="like">좋아요</button>
+      <button data-comment-id="<%= comment[i].commentId %>" class="delete">삭제</button>
+      <button data-comment-id="<%= comment[i].commentId %>" class="modify">수정</button>
       <% } %>
     </div>
 
@@ -40,11 +43,29 @@
         alert(data.message);
         window.location.href = window.location.href;
       });
+      //버튼에 대한 이벤트리스너
       document.querySelector(".comment").addEventListener("click", async (e) => {
+        const commentId = e.target.getAttribute("data-comment-id");
         console.log(e.target);
-        if (e.target.includes("button")) {
-          const response = await fetch(`/comment/${postId}/like`, {
+        if (e.target.classList.contains("like")) {
+          const response = await fetch(`/comment/${commentId}/like`, {
             method: "POST", // HTTP 메소드를 POST로 설정
+          });
+          const data = await response.json();
+          alert(data.message);
+          window.location.href = window.location.href;
+        }
+        if (e.target.classList.contains("delete")) {
+          const response = await fetch(`/comments/${commentId}`, {
+            method: "DELETE", // HTTP 메소드를 POST로 설정
+          });
+          const data = await response.json();
+          alert(data.message);
+          window.location.href = window.location.href;
+        }
+        if (e.target.classList.contains("modify")) {
+          const response = await fetch(`/comments/${commentId}`, {
+            method: "PATCH", // HTTP 메소드를 POST로 설정
           });
           const data = await response.json();
           alert(data.message);
