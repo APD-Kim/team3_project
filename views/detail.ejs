@@ -20,16 +20,18 @@
       <input name="content" type="text" />
       <button type="submit">댓글달기</button>
     </form>
-    <div class="post">
+    <div class="comment">
       <% for( let i = 0; i < comment.length; i++ ) { %>
-      <p>닉네임 : <%= comment[i].userId %></p>
+      <p>닉네임 : <%= comment[i].User.name %></p>
       <p><%= comment[i].content %></p>
       <p><%= comment[i].createdAt %></p>
+      <button id="<%= comment[i].commentId %>">좋아요</button>
       <% } %>
     </div>
 
     <script>
       let postId = "<%= post.postId %>";
+      let commentId = "<%= comment.commentId %>";
       document.querySelector(".like-btn").addEventListener("click", async () => {
         const response = await fetch(`/post/${postId}/like`, {
           method: "POST", // HTTP 메소드를 POST로 설정
@@ -37,6 +39,17 @@
         const data = await response.json();
         alert(data.message);
         window.location.href = window.location.href;
+      });
+      document.querySelector(".comment").addEventListener("click", async (e) => {
+        console.log(e.target);
+        if (e.target.includes("button")) {
+          const response = await fetch(`/comment/${postId}/like`, {
+            method: "POST", // HTTP 메소드를 POST로 설정
+          });
+          const data = await response.json();
+          alert(data.message);
+          window.location.href = window.location.href;
+        }
       });
     </script>
   </body>

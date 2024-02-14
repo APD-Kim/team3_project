@@ -79,6 +79,13 @@ router.get("/posts/:postId", async (req, res) => {
 
     const comment = await prisma.comment.findMany({
       where: { postId: +postId },
+      include: {
+        User: {
+          select: {
+            name: true, // user 테이블에서 name 컬럼만 선택
+          },
+        },
+      },
     });
 
     if (post === null) {
