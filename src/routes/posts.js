@@ -2,10 +2,15 @@ import express from "express";
 import { prisma } from "../utils/index.js";
 import authMiddleware from "../middleware/auth.middleware.js";
 import { redisCli } from "../../app.js";
+import requestip from "request-ip";
 
 const router = express.Router();
 
 router.get("/", async (req, res) => {
+  let ip = requestip.getClientIp(req);
+  res.cookie("1", ip, { maxAge: 24 * 60 * 60 * 1000 });
+  console.log(req.cookies[1]);
+
   try {
     const posts = await prisma.post.findMany({
       select: {

@@ -22,7 +22,6 @@ router.post("/comments/:postId", authMiddleware, async (req, res, next) => {
         message: "댓글 내용은 반드시 작성해야 합니다.",
       });
     }
-
     const comment = await prisma.comment.create({
       data: {
         userId,

@@ -3,6 +3,7 @@ import { prisma } from "../utils/index.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import authMiddleware from "../middleware/auth.middleware.js";
+import { redisCli } from "../../app.js";
 
 const router = express.Router();
 
@@ -112,7 +113,10 @@ router.post("/login1", async (req, res, next) => {
   const { email, password } = req.body;
   console.log(email);
   console.log(password);
-  const user = await prisma.user.findFirst({ where: { email, provider: "user" } });
+  const user = await prisma.user.findFirst({ where: { email } });
+  if (user.provider === "kakao" || user.provider === "google") {
+    return res.status(401).json({ message: "카카오 혹은 구글로 회원가입되어있습니다." });
+  }
   if (!user) {
     return res.status(401).json({ message: "존재하지 않는 이메일입니다" });
   }
@@ -135,8 +139,26 @@ router.get("/logout", authMiddleware, async (req, res, next) => {
 });
 
 router.get("/me", authMiddleware, async (req, res, next) => {
+  const { userId } = req.user;
   const user = await prisma.user.findFirst({ where: { userId: req.user.userId } });
-  return res.render("mypage", { user: user });
+  if (!user) {
+    res.status(404).json({ message: "해당 유저를 찾을 수 없습니다." });
+  }
+  const searchFollow = await prisma.follow.findMany({
+    where: {
+      following: Number(userId),
+    },
+    select: {
+      follower: true,
+    },
+  });
+  const following = await prisma.follow.findMany({
+    where: {
+      follower: Number(userId),
+    },
+    select: { following: true },
+  });
+  return res.render("mypage", { user: user, followed: searchFollow, follow: following });
 });
 //특정 유저 아이디 페이지
 router.get("/user/:userId", authMiddleware, async (req, res, next) => {
