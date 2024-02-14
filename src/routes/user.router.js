@@ -118,27 +118,44 @@ router.get("/login", (req, res, next) => {
 });
 
 // 로그인 api
+// router.post("/login", async (req, res, next) => {
+//   const { email, password } = req.body;
+
+//   const user = await prisma.user.findFirst({ where: { email, provider: "user" } });
+
+//   if (!user) {
+//     return res.status(401).json({ message: "존재하지 않는 이메일입니다" });
+//   }
+
+//   if (user.password === null) {
+//     return res.status(403).json({ message: "비밀번호가 일치하지 않습니다." });
+//   }
+
+//   if (!(await bcrypt.compare(password, user.password))) {
+//     return res.status(403).json({ message: "비밀번호가 일치하지 않습니다" });
+//   }
+
+//   const token = jwt.sign({ userId: user.userId }, "custom-secret-key");
+
+//   res.cookie("authorization", `Bearer ${token}`, { maxAge: 1000 * 60 * 60 * 8 });
+//   return res.redirect("/")
+// });
+
+// 로그인 api
 router.post("/login", async (req, res, next) => {
   const { email, password } = req.body;
-
-  const user = await prisma.user.findFirst({ where: { email, provider: "user" } });
-
+  const user = await prisma.user.findFirst({ where: { email } });
+  
   if (!user) {
     return res.status(401).json({ message: "존재하지 않는 이메일입니다" });
-  }
-
-  if (user.password === null) {
-    return res.status(403).json({ message: "비밀번호가 일치하지 않습니다." });
   }
 
   if (!(await bcrypt.compare(password, user.password))) {
     return res.status(403).json({ message: "비밀번호가 일치하지 않습니다" });
   }
-
   const token = jwt.sign({ userId: user.userId }, "custom-secret-key");
-
-  res.cookie("authorization", `Bearer ${token}`, { maxAge: 1000 * 60 * 60 * 8 });
-  return res.redirect("/")
+  res.cookie("authorization", `Bearer ${token}`);
+  return res.status(200).json({ message: "로그인에 성공하였습니다" });
 });
 
 router.get("/logout", (req, res) => {
