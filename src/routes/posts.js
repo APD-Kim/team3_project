@@ -5,62 +5,32 @@ import { redisCli } from "../../app.js";
 
 const router = express.Router();
 
-
-router.get("/mainpage", async (req, res) => {
-  //// 뉴스 피드 모든 목록 조회
+router.get("/", async (req, res) => {
   try {
-    const user = await prisma.post.findMany({
+    const posts = await prisma.post.findMany({
       select: {
         postId: true,
         title: true,
         content: true,
         like: true,
-        postimg: true,
+        view: true,
         User: {
           select: {
             userId: true,
             email: true,
             name: true,
-=======
-//쿼리 데이터 집계
-//예 : dc
-//메모리를 쓰지 안흥면 = 게시판 -> 모든 데이터 조회수를 가지고 join
-//폴링
-
-router.get("/", async (req, res) => {
-  try {
-    const cache = "mainPageCache";
-    const CachedPosts = await redisCli.get(cache);
-    if (CachedPosts) {
-      res.render("index", { post: JSON.parse(CachedPosts) });
-    } else {
-      const posts = await prisma.post.findMany({
-        select: {
-          postId: true,
-          title: true,
-          content: true,
-
-          User: {
-            select: {
-              userId: true,
-              email: true,
-              name: true,
-            },
           },
-          createdAt: true,
-          updatedAt: true,
         },
-      });
-    }
-    await redisCli.setex(cache,3600,JSON.stringify())
-
-    return res.status(200).json({ data: user });
-    res.render("index", { posts: JSON.stringify(posts) });
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+    res.render("index", { post: posts });
   } catch (error) {
-    console.error(error.message);
+    res.status(500).send("Internal Server Error");
   }
 });
-
+//상세 페이지
 router.get("/posts/:postId", async (req, res) => {
   try {
     const { postId } = req.params;
@@ -85,7 +55,7 @@ router.get("/posts/:postId", async (req, res) => {
     const post = await prisma.post.findFirst({
       where: { postId: +postId },
       select: {
-        postId: +postId,
+        postId: true,
         title: true,
         content: true,
         like: true,
@@ -103,10 +73,21 @@ router.get("/posts/:postId", async (req, res) => {
       },
     });
 
+    const comment = await prisma.comment.findMany({
+      where: { postId: +postId },
+      include: {
+        User: {
+          select: {
+            name: true, // user 테이블에서 name 컬럼만 선택
+          },
+        },
+      },
+    });
+
     if (post === null) {
       return res.status(400).json({ message: "원하는 목록이 존재하지 않습니다." });
     }
-    return res.status(201).json({ data: post });
+    return res.status(201).render("detail", { post: post, comment: comment });
   } catch (error) {
     console.error(error.message);
   }
@@ -199,7 +180,6 @@ router.delete("/posts/:postId", authMiddleware, async (req, res) => {
     const { userId } = req.user;
     const { postId } = req.params;
 
-
     const post = await prisma.post.findFirst({
       where: { postId: +postId },
     });
@@ -212,15 +192,13 @@ router.delete("/posts/:postId", authMiddleware, async (req, res) => {
       return res.status(400).json({ message: "게시글이 존재하지 않습니다." });
     }
 
-    
     if (post.userId !== userId) {
       return res.status(401).json({ message: "삭제할 권한이 없습니다." });
 
-
-    await prisma.post.delete({
-      where: { postId: +postId },
-    });
-
+      await prisma.post.delete({
+        where: { postId: +postId },
+      });
+    }
 
     return res.status(200).json({ message: "삭제 완료" });
   } catch (error) {

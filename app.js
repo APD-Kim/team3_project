@@ -5,6 +5,7 @@ import redis from "redis";
 
 
 import commentRouter from "./src/routes/comments.routes.js";
+import withAuth from "./src/middleware/authLogin.middleware.js";
 import userRouter from "./src/routes/user.router.js";
 import postRouter from "./src/routes/posts.js";
 import likeRouter from "./src/routes/like.routes.js";
@@ -32,10 +33,13 @@ export const redisCli = redisClient.v4;
 
 const app = express();
 app.set("view engine", "ejs");
+
+app.use(express.static("public"));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(nonMemberAuthMiddleware);
+app.use(withAuth);
 app.use(pageRouter);
 app.use(userRouter);
 app.use(commentRouter);
