@@ -55,7 +55,7 @@ router.post("/verify-email", async (req, res, next) => {
 
 // 회원가입 api
 router.post("/sign-up", async (req, res, next) => {
-  const { verificationCode, email, password, passwordconfirm, name } = req.body;
+  const { verificationCode, email, password, passwordconfirm, name, usercontent } = req.body;
 
   if (!email) {
     return res.status(400).json({ message: "이메일을 적지 않았습니다" });
@@ -126,6 +126,52 @@ router.post("/login", async (req, res, next) => {
 router.post("/logout", authMiddleware, async (req, res, next) => {
   res.clearCookie("authorization");
   return res.status(200).json({ message: "로그아웃에 성공하였습니다" });
+});
+
+// 비밀번호 변경
+router.put('/check-change', authMiddleware, async (req, res) => {
+  const userId = req.user.userId;
+  const { currentPassword, modifyPassword } = req.body;
+
+  const user = await prisma.user.findUnique({ where: { userId: +userId } });
+
+  if (!user) {
+      return res.status(404).json({ message: "회원이 없습니다" });
+  }
+
+  if (!(await bcrypt.compare(currentPassword, user.password))) {
+      return res.status(403).json({ message: "현재 비밀번호가 일치하지 않습니다." });
+  }
+  
+  const hashedPassword = await bcrypt.hash(modifyPassword, 10);
+
+  await prisma.user.update({
+    data: {
+      password: hashedPassword
+    },
+    where: {
+      userId: +userId
+    }
+  });
+
+  return res.status(200).json({ message: "비밀번호 수정 완료" });
+});
+
+// 사용자 정보 변경
+router.put('/edit',authMiddleware ,async (req, res) => {
+  const userId = req.user.userId;
+  const {name, usercontent} = req.body;
+
+  const updatedUser = await prisma.user.update({
+      where: { userId: +userId },
+      data: {
+          name: name,
+          usercontent: usercontent
+      },
+  });
+
+  return res.status(200).json({ message: "사용자 정보 수정이 완료되었습니다", updatedUser });
+
 });
 
 export default router;
