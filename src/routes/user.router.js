@@ -7,9 +7,7 @@ import authMiddleware from "../middleware/auth.middleware.js";
 import { redisCli } from "../../app.js";
 
 import nodemailer from "nodemailer";
-
 const router = express.Router();
-
 // 랜덤한 4자리 숫자 생성
 const randomnumber = () => {
   return Math.floor(1000 + Math.random() * 9000);
@@ -23,8 +21,32 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-//회원가입api
+// 이메일 코드 전송 API
+router.post("/verify-email", async (req, res, next) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ message: "이메일을 적지 않았습니다" });
+  }
+  const verificationCode = randomnumber();
+  // 사용자에 대한 인증 코드 저장
+  verifiCode[email] = verificationCode;
+  // 이메일 내용
+  const mailsend = {
+    from: process.env.SEND_MAIL_ID,
+    to: email,
+    subject: "이메일 인증",
+    text: `계정을 인증하려면 다음 숫자를 입력하세요: ${verificationCode}`,
+  };
+  transporter.sendMail(mailsend, (error) => {
+    if (error) {
+      return res.status(500).json({ message: '이메일 전송 중 오류가 발생했습니다.' });
+    } else {
+      return res.status(201).json({ message: '이메일을 확인해주세요.' });
+    }
+  });
+});
 
+//회원가입api
 router.get("/sign-up", async (req, res, next) => {
   res.render("signup");
 });
@@ -61,9 +83,6 @@ router.post("/sign-up", async (req, res, next) => {
       return res.status(400).json({ message: "비밀번호가 비밀번호 확인과 다릅니다." });
     }
     const verificationCode = randomnumber();
-    // 조회수 단시간 방지는 백의 역할이 아님
-    //더블클릭
-    // 이메일 내용
     const mailsend = {
       from: process.env.SEND_MAIL_ID,
       to: email,
@@ -121,47 +140,39 @@ router.post("/valid-code", async (req, res, next) => {
     console.error(error.message);
   }
 });
-
 // 로그인 api
 router.post("/login", async (req, res, next) => {
   const { email, password } = req.body;
-
-  console.log(email);
-  console.log(password);
   const user = await prisma.user.findFirst({ where: { email } });
+
   if (!user) {
     return res.status(401).json({ message: "존재하지 않는 이메일입니다" });
   }
   if (user.password === null) {
     return res.status(403).json({ message: "비밀번호가 일치하지 않습니다." });
   }
-
   if (!(await bcrypt.compare(password, user.password))) {
     return res.status(403).json({ message: "비밀번호가 일치하지 않습니다" });
   }
+
   const token = jwt.sign({ userId: user.userId }, process.env.SECRET_KEY, { expiresIn: "8h" });
 
   res.cookie("authorization", `Bearer ${token}`, { maxAge: 1000 * 60 * 60 * 8 });
   return res.status(200).redirect("/");
-});
 
+});
 // 비밀번호 변경
 router.put("/check-change", authMiddleware, async (req, res) => {
   const userId = req.user.userId;
   const { currentPassword, modifyPassword } = req.body;
-
   const user = await prisma.user.findUnique({ where: { userId: +userId } });
-
   if (!user) {
     return res.status(404).json({ message: "회원이 없습니다" });
   }
-
   if (!(await bcrypt.compare(currentPassword, user.password))) {
     return res.status(403).json({ message: "현재 비밀번호가 일치하지 않습니다." });
   }
-
   const hashedPassword = await bcrypt.hash(modifyPassword, 10);
-
   await prisma.user.update({
     data: {
       password: hashedPassword,
@@ -170,12 +181,11 @@ router.put("/check-change", authMiddleware, async (req, res) => {
       userId: +userId,
     },
   });
-
   return res.status(200).json({ message: "비밀번호 수정 완료" });
 });
-
 // 사용자 정보 변경
-router.put("/edit", authMiddleware, async (req, res) => {
+
+router.put('/edit', authMiddleware, async (req, res) => {
   const userId = req.user.userId;
   const { name, usercontent } = req.body;
 
@@ -186,15 +196,14 @@ router.put("/edit", authMiddleware, async (req, res) => {
       usercontent: usercontent,
     },
   });
-
   return res.status(200).json({ message: "사용자 정보 수정이 완료되었습니다", updatedUser });
 });
 
 router.get("/logout", authMiddleware, async (req, res, next) => {
   res.clearCookie("authorization");
   return res.redirect("/");
-});
 
+});
 router.get("/me", authMiddleware, async (req, res, next) => {
   const { userId } = req.user;
   const user = await prisma.user.findFirst({ where: { userId: req.user.userId } });
@@ -234,9 +243,5 @@ router.get("/user/:userId", authMiddleware, async (req, res, next) => {
   return res.render("users", { user: user, post: posts });
 });
 
-// 로그아웃 api
-// 정규화
-// 유명 서비스들이 어떤 데이터베이스를 쓰는지
-// db 설계
-// 데이터베이스의 종류
 export default router;
+

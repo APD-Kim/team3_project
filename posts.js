@@ -2,15 +2,11 @@ import express from "express";
 import { prisma } from "../utils/index.js";
 import authMiddleware from "../middleware/auth.middleware.js";
 import { redisCli } from "../../app.js";
-import requestip from "request-ip";
+
 
 const router = express.Router();
 
 router.get("/", async (req, res) => {
-  let ip = requestip.getClientIp(req);
-  res.cookie("1", ip, { maxAge: 24 * 60 * 60 * 1000 });
-  console.log(req.cookies[1]);
-
   try {
     const posts = await prisma.post.findMany({
       select: {
@@ -24,7 +20,7 @@ router.get("/", async (req, res) => {
             userId: true,
             email: true,
             name: true,
-            usercontent: true,
+            usercontent : true,
           },
         },
         createdAt: true,
@@ -37,11 +33,10 @@ router.get("/", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
 //상세 페이지
 router.get("/posts/:postId", async (req, res) => {
   try {
-    const { postId } = req.params; 
+    const { postId } = req.params;
     const { uid } = req.cookies;
     //uid는 조회한 게시물 추적용
     const expireKey = `post:view:expire:${postId}:${uid}`;
@@ -74,7 +69,7 @@ router.get("/posts/:postId", async (req, res) => {
             userId: true,
             email: true,
             name: true,
-            usercontent: true,
+            usercontent : true,
           },
         },
         createdAt: true,
@@ -96,7 +91,7 @@ router.get("/posts/:postId", async (req, res) => {
     if (post === null) {
       return res.status(400).json({ message: "원하는 목록이 존재하지 않습니다." });
     }
-
+    
     return res.status(201).render("detail", { post: post, comment: comment });
   } catch (error) {
     console.error(error.message);
@@ -206,10 +201,9 @@ router.delete("/posts/:postId", authMiddleware, async (req, res) => {
       return res.status(401).json({ message: "삭제할 권한이 없습니다." });
     }
 
-
-    await prisma.post.delete({
-      where: { postId: +postId },
-    });
+      await prisma.post.delete({
+        where: { postId: +postId },
+      });
 
     return res.status(200).json({ message: "삭제 완료" });
   } catch (error) {

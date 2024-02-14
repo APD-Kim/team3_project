@@ -11,6 +11,7 @@ datasource db {
 }
 
 model User {
+
   userId      Int      @id @default(autoincrement())
   snsId       String?
   email       String?  @unique
@@ -20,6 +21,7 @@ model User {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   follower    Int      @default(0)
+
 
   provider  Provider?
   Post      Post[]
@@ -104,8 +106,5 @@ model Reply {
 enum Provider {
   kakao
   google
-  naver
-  github
-  steam
   user
 }
