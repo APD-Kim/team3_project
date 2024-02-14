@@ -10,7 +10,7 @@ import postRouter from "./src/routes/posts.js";
 import likeRouter from "./src/routes/like.routes.js";
 import replyRouter from "./src/routes/reply.routes.js";
 import followRouter from "./src/routes/follow.routes.js";
-import imageRouter from "../team3_project/src/routes/image.js";
+import imageRouter from "./src/routes/image.js";
 import redisTestRouter from "./src/routes/test.js";
 import nonMemberAuthMiddleware from "./src/middleware/nonMember.auth.middleware.js";
 import authRouter from "./src/routes/auth.routes.js";
