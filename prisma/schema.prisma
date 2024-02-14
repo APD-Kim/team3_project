@@ -16,9 +16,11 @@ model User {
   email     String?  @unique
   password  String?
   name      String
+  usercontent   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   follower  Int      @default(0)
+
 
   provider  Provider?
   Post      Post[]

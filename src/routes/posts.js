@@ -3,6 +3,7 @@ import { prisma } from "../utils/index.js";
 import authMiddleware from "../middleware/auth.middleware.js";
 import { redisCli } from "../../app.js";
 
+
 const router = express.Router();
 
 router.get("/", async (req, res) => {
@@ -19,12 +20,14 @@ router.get("/", async (req, res) => {
             userId: true,
             email: true,
             name: true,
+            usercontent : true,
           },
         },
         createdAt: true,
         updatedAt: true,
       },
     });
+
     res.render("index", { post: posts });
   } catch (error) {
     res.status(500).send("Internal Server Error");
@@ -66,6 +69,7 @@ router.get("/posts/:postId", async (req, res) => {
             userId: true,
             email: true,
             name: true,
+            usercontent : true,
           },
         },
         createdAt: true,
@@ -87,6 +91,7 @@ router.get("/posts/:postId", async (req, res) => {
     if (post === null) {
       return res.status(400).json({ message: "원하는 목록이 존재하지 않습니다." });
     }
+    
     return res.status(201).render("detail", { post: post, comment: comment });
   } catch (error) {
     console.error(error.message);
@@ -123,7 +128,7 @@ router.post("/posts", authMiddleware, async (req, res) => {
       },
     });
 
-    return res.status(200).json({ data: posts });
+    return res.status(201).json({ data: posts });
   } catch (error) {
     console.error(error.message);
   }
@@ -168,7 +173,7 @@ router.put("/posts/:postId", authMiddleware, async (req, res) => {
       },
     });
 
-    return res.status(200).json({ data: postput });
+    return res.status(201).json({ data: postput });
   } catch (error) {
     console.error(error.message);
   }
@@ -194,6 +199,7 @@ router.delete("/posts/:postId", authMiddleware, async (req, res) => {
 
     if (post.userId !== userId) {
       return res.status(401).json({ message: "삭제할 권한이 없습니다." });
+    }
 
       await prisma.post.delete({
         where: { postId: +postId },
