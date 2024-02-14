@@ -204,6 +204,7 @@ router.delete("/posts/:postId", authMiddleware, async (req, res) => {
       await prisma.post.delete({
         where: { postId: +postId },
       });
+    }
 
     return res.status(200).json({ message: "삭제 완료" });
   } catch (error) {
