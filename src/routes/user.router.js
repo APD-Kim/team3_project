@@ -14,8 +14,64 @@ router.get("/sign-up", async (req, res, next) => {
 router.post("/sign-up", async (req, res, next) => {
   const { email, password, passwordconfirm, name } = req.body;
 
-  if (!email) {
-    return res.status(400).json({ message: "이메일을 적지 않았습니다" });
+  try {
+    if (!email) {
+      return res.status(400).json({ message: "이메일을 작성해주세요." });
+    }
+
+    if (!password) {
+      return res.status(400).json({ message: "비밀번호를 작성해주세요." });
+    }
+
+    if (!passwordconfirm) {
+      return res.status(400).json({ message: "비밀번호 확인란을 작성해주세요." });
+    }
+
+    if (!name) {
+      return res.status(400).json({ message: "이름란을 작성해주세요." });
+    }
+
+    const exitUser = await prisma.user.findFirst({
+      where: { email },
+    });
+
+    if (exitUser) {
+      return res.status(409).json({ message: "이미 존재하는 이메일입니다." });
+    }
+
+    if (password !== passwordconfirm) {
+      return res.status(400).json({ message: "비밀번호가 비밀번호 확인과 다릅니다." });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await prisma.user.create({
+      data: { email, password: hashedPassword, name },
+    });
+
+    return res.status(201).json({ data: user });
+  } catch (error) {
+    console.error(error.message);
+  }
+});
+
+// 로그인 api
+router.post("/login", async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    const user = await prisma.user.findFirst({ where: { email } });
+    if (!user) {
+      return res.status(400).json({ message: "존재하지 않는 이메일입니다." });
+    }
+
+    if (!(await bcrypt.compare(password, user.password))) {
+      return res.status(403).json({ message: "비밀번호가 일치하지 않습니다." });
+    }
+    const token = jwt.sign({ userId: user.userId }, "custom-secret-key");
+    res.cookie("authorization", `Bearer ${token}`);
+    return res.status(200).json({ message: "로그인 성공" });
+  } catch (error) {
+    console.error(error.message);
   }
 
   if (!password) {
@@ -82,7 +138,7 @@ router.get("/me", authMiddleware, async (req, res, next) => {
   const user = await prisma.user.findFirst({ where: { userId: req.user.userId } });
   return res.render("mypage", { user: user });
 });
-
+//특정 유저 아이디 페이지
 router.get("/user/:userId", authMiddleware, async (req, res, next) => {
   const { userId } = req.params;
   const posts = await prisma.post.findMany({
@@ -97,5 +153,7 @@ router.get("/user/:userId", authMiddleware, async (req, res, next) => {
   });
   return res.render("users", { user: user, post: posts });
 });
+
+// 로그아웃 api
 
 export default router;
