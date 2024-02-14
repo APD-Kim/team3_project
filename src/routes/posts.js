@@ -30,8 +30,7 @@ router.get("/mainpage", async (req, res) => {
       },
     });
 
-    return res.status(200).json({ data: user });
-    res.render("index", { posts: JSON.stringify(posts) });
+    res.render("index", { post: posts });
   } catch (error) {
     console.error(error.message);
   }
@@ -84,7 +83,7 @@ router.get("/posts/:postId", async (req, res) => {
       return res.status(400).json({ message: "원하는 목록이 존재하지 않습니다." });
     }
     
-    return res.status(200).json({ data: post });
+    return res.status(201).render("detail", { post: post, comment: comment });
   } catch (error) {
     console.error(error.message);
   }

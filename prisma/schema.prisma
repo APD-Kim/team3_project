@@ -17,8 +17,6 @@ model User {
   password  String?
   name      String
   usercontent   String?
-
-
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   follower  Int       @default(0)
