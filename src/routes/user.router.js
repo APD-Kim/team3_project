@@ -155,7 +155,7 @@ router.post("/login", async (req, res, next) => {
   }
   const token = jwt.sign({ userId: user.userId }, "custom-secret-key");
   res.cookie("authorization", `Bearer ${token}`);
-  return res.status(200).json({ message: "로그인에 성공하였습니다" });
+  return res.redirect("/")
 });
 
 router.get("/logout", (req, res) => {
