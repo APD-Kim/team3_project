@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="../public/style.css" />
+  </head>
+  <body>
+    <div>
+      <%- include('nav.ejs')%>
+      <p>아이디 : <%= user.userId %></p>
+      <p>닉네임 : <%= user.name %></p>
+      <p>이메일 : <%= user.email %></p>
+      <p>생성일 : <%= user.createdAt %></p>
+      <p>팔로워 : <%= user.follower %></p>
+      <button class="follow">이사람 팔로우하기</button>
+      <h2><%= user.name %> 님이 쓴 게시물</h2>
+      <% for( let i = 0; i < post.length; i++ ) { %>
+      <div class="post">
+        <h2><a href="/posts/<%= post[i].postId%>"><%= post[i].title %></a></h2>
+        <p><%= post[i].content %></p>
+        <p>좋아요 : <%= post[i].like %></p>
+        <p>조회수 : <%= post[i].view %></p>
+      </div>
+      <% } %>
+      <script>
+        const userId = "<%= user.userId %>";
+        document.querySelector(".follow").addEventListener("click", async () => {
+          const response = await fetch(`/follow/${userId}`, {
+            method: "POST",
+          });
+          console.log(response);
+          const data = await response.json();
+          alert(data.message);
+          window.location.href = window.location.href;
+        });
+      </script>
+    </div>
+  </body>
+</html>

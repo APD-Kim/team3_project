@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <%- include('nav.ejs')%>
+    <div class="login-container">
+      <form action="/login" method="POST" class="login-form">
+        <h2>Login</h2>
+        <div class="form-group">
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Password:</label>
+          <input type="password" id="password" name="password" required />
+        </div>
+        <button type="submit">Login</button>
+      </form>
+    </div>
+    <h1>구글 로그인</h1>
+    <a href="/google-login">구글 로그인</a>
+    <h1>카카오 로그인</h1>
+    <a href="/kakao">카카오 로그인</a>
+  </body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <%- include('nav.ejs')%>
+    <div class="post">
+      <h2><%= post.title %></h2>
+      <p><%= post.content %></p>
+      <p id="<%= post.User.userId %>">작성자: <a href="/user/<%= post.User.userId %>"><%= post.User.name %></a></p>
+      <p>좋아요 : <%= post.like %></p>
+      <p>조회수 : <%= post.view %></p>
+      <button class="like-btn">좋아요</button>
+    </div>
+    <h2>댓글</h2>
+    <form class="form-box" action="/comments/<%= post.postId %>" method="POST">
+      <input name="content" type="text" />
+      <button type="submit">댓글달기</button>
+    </form>
+    <div class="comment">
+      <% for( let i = 0; i < comment.length; i++ ) { %>
+      <p>닉네임 : <%= comment[i].User.name %></p>
+      <p><%= comment[i].content %></p>
+      <p><%= comment[i].createdAt %></p>
+      <p>좋아요 수 : <%= comment[i].like %></p>
+      <button data-comment-id="<%= comment[i].commentId %>" class="like">좋아요</button>
+      <button data-comment-id="<%= comment[i].commentId %>" class="delete">삭제</button>
+      <button data-comment-id="<%= comment[i].commentId %>" class="modify">수정</button>
+      <% } %>
+    </div>
+
+    <script>
+      let postId = "<%= post.postId %>";
+      let commentId = "<%= comment.commentId %>";
+      document.querySelector(".like-btn").addEventListener("click", async () => {
+        const response = await fetch(`/post/${postId}/like`, {
+          method: "POST", // HTTP 메소드를 POST로 설정
+        });
+        const data = await response.json();
+        alert(data.message);
+        window.location.href = window.location.href;
+      });
+      //버튼에 대한 이벤트리스너
+      document.querySelector(".comment").addEventListener("click", async (e) => {
+        const commentId = e.target.getAttribute("data-comment-id");
+        console.log(e.target);
+        if (e.target.classList.contains("like")) {
+          const response = await fetch(`/comment/${commentId}/like`, {
+            method: "POST", // HTTP 메소드를 POST로 설정
+          });
+          const data = await response.json();
+          alert(data.message);
+          window.location.href = window.location.href;
+        }
+        if (e.target.classList.contains("delete")) {
+          const response = await fetch(`/comments/${commentId}`, {
+            method: "DELETE", // HTTP 메소드를 POST로 설정
+          });
+          const data = await response.json();
+          alert(data.message);
+          window.location.href = window.location.href;
+        }
+        if (e.target.classList.contains("modify")) {
+          const response = await fetch(`/comments/${commentId}`, {
+            method: "PATCH", // HTTP 메소드를 POST로 설정
+          });
+          const data = await response.json();
+          alert(data.message);
+          window.location.href = window.location.href;
+        }
+      });
+    </script>
+  </body>
+</html>
