@@ -1,20 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-  </head>
-  <body>
-    <%- include('nav.ejs')%>
-    <form class="form-box" action="/posts" method="POST">
-      <h4>제목</h4>
-      <input name="title" type="text" />
-      <h4>내용</h4>
-      <input name="content" type="text" />
-      <button type="submit">전송</button>
-    </form>
-  </body>
-</html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>글쓰기</title>
+  <link rel="stylesheet" href="../public/style.css" />
+</head>
+<body>
+  <%- include('nav.ejs')%>
+    <div class="header_title">
+      <div class="title_img"></div>
+    </div>
+    <div class="big_box">
+      <div class="in_box">
+        <div class="img_box">
+          <div class="img"></div>
+        </div>
+        <form class="form-box" action="/posts" method="POST">
+          <div class="title">
+            <input name="title" type="text" placeholder="제목" />
+          </div>
+          <div>
+            <input name="content" type="text" placeholder="내용" />
+          </div>
+          <div class="button_div">
+            <button type="submit" class="submit_button">전송</button>
+          </div>
+        </form>
+      </div>
+    </div>
+</body>
 
+</html>

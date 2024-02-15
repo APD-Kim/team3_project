@@ -1,0 +1,79 @@
+body {
+    padding-top: 150px;
+    background-color: antiquewhite;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2px 2px 2px 2px;
+}
+
+.header_title {
+    padding-bottom: 10px;
+}
+
+.title_img {
+    background: url('https://img.freepik.com/free-photo/3d-illustration-of-ukraine-trident-hand-sign_107791-17026.jpg?w=740&t=st=1707907602~exp=1707908202~hmac=590d7473330a3261875e9200d5a5238e5e52bbdda7ff6b58c4ca2c1e31e8c817');
+    background-position: center;
+    background-size: cover;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+}
+
+.big_box {
+    box-shadow: 1px 1px 3px 1px black;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.in_box {
+    text-align: center;
+}
+
+.img {
+    text-align: center;
+    background: url('https://cdn.pixabay.com/photo/2023/04/19/03/58/flower-7936549_1280.png');
+    width: 300px;
+    height: 115px;
+    padding-bottom: 1px black;
+    border-bottom: 1px black;
+    background-position: center;
+    background-size: cover;
+    border-radius: 5px;
+}
+
+.img_box {
+    border-bottom: 0.1px solid lightgray;
+    border-bottom: 0.1px solid whitesmoke;
+    border-radius: 5px;
+    padding: 2px 2px 0px 2px;
+}
+
+
+.title {
+    padding: 5px;
+}
+
+.button_div {
+    padding: 5px;
+}
+
+.submit_button {
+    background-color: white;
+    width: 50px;
+    height: 30px;
+    transition-duration: 0.3s;
+    border: 0.1px solid lightgray;
+    padding: 5px;
+}
+
+.submit_button:hover {
+    background-color: whitesmoke;
+    border: 0.1px solid lightgray;
+}
+
+.submit_button:active {
+    background-color: lightgray;
+    border: 0.1px solid lightgray;
+}
