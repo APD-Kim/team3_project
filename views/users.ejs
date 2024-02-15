@@ -13,7 +13,8 @@
       <p>닉네임 : <%= user.name %></p>
       <p>이메일 : <%= user.email %></p>
       <p>생성일 : <%= user.createdAt %></p>
-      <button>이사람 팔로우하기</button>
+      <p>팔로워 : <%= user.follower %></p>
+      <button class="follow">이사람 팔로우하기</button>
       <h2><%= user.name %> 님이 쓴 게시물</h2>
       <% for( let i = 0; i < post.length; i++ ) { %>
       <div class="post">
@@ -23,6 +24,18 @@
         <p>조회수 : <%= post[i].view %></p>
       </div>
       <% } %>
+      <script>
+        const userId = "<%= user.userId %>";
+        document.querySelector(".follow").addEventListener("click", async () => {
+          const response = await fetch(`/follow/${userId}`, {
+            method: "POST",
+          });
+          console.log(response);
+          const data = await response.json();
+          alert(data.message);
+          window.location.href = window.location.href;
+        });
+      </script>
     </div>
   </body>
 </html>

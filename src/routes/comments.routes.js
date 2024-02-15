@@ -22,7 +22,6 @@ router.post("/comments/:postId", authMiddleware, async (req, res, next) => {
         message: "댓글 내용은 반드시 작성해야 합니다.",
       });
     }
-
     const comment = await prisma.comment.create({
       data: {
         userId,
@@ -39,10 +38,17 @@ router.post("/comments/:postId", authMiddleware, async (req, res, next) => {
   }
 });
 
-router.delete("/comments/:commentId", async (req, res, next) => {
+router.delete("/comments/:commentId", authMiddleware, async (req, res, next) => {
+  const { userId } = req.user;
   const { commentId } = req.params;
-  if (!contentId) {
-    return res.status(400).json({ success: false, message: "댓글 내용은 반드시 작성해야 합니다." });
+  const comment = await prisma.comment.findFirst({
+    where: {
+      commentId: +commentId,
+    },
+  });
+  if (!comment) return res.status(404).json({ message: "댓글을 찾을 수 없습니다." });
+  if (comment.userId !== userId) {
+    return res.status(400).json({ message: "다른 사람의 댓글은 지울 수 없습니다." });
   }
   await prisma.comment.delete({
     where: {
@@ -52,7 +58,7 @@ router.delete("/comments/:commentId", async (req, res, next) => {
   return res.status(201).json({ success: true, message: "댓글이 성공적으로 작성되었습니다." });
 });
 
-router.patch("/comments/:commentId", async (req, res, next) => {
+router.patch("/comments/:commentId", authMiddleware, async (req, res, next) => {
   try {
     const { commentId } = req.params;
     const { content } = req.body;
@@ -67,6 +73,9 @@ router.patch("/comments/:commentId", async (req, res, next) => {
     if (!comment) {
       return res.status(400).json({ success: false, message: "해당 댓글을 찾을 수 없습니다." });
     }
+    if (comment.userId !== req.user.userId) {
+      return res.status(400).json({ success: false, message: "수정할 권한이 없습니다." });
+    }
     await prisma.comment.update({
       where: {
         commentId: Number(commentId),
@@ -77,6 +86,7 @@ router.patch("/comments/:commentId", async (req, res, next) => {
     });
     return res.status(201).json({ success: true, message: "댓글이 성공적으로 수정되었습니다." });
   } catch (err) {
+    console.log(err.message);
     return res.status(500).json({ success: false, message: "댓글 수정 중 오류가 발생했습니다" });
   }
 });

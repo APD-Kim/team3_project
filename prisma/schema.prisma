@@ -11,15 +11,16 @@ datasource db {
 }
 
 model User {
-  userId    Int      @id @default(autoincrement())
-  snsId     String?
-  email     String?  @unique
-  password  String?
-  name      String
-  usercontent   String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  follower  Int       @default(0)
+
+  userId      Int      @id @default(autoincrement())
+  snsId       String?
+  email       String?  @unique
+  password    String?
+  name        String
+  usercontent String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  follower    Int      @default(0)
 
 
   provider  Provider?
@@ -42,7 +43,6 @@ model Post {
   updatedAt DateTime @updatedAt
   like      Int      @default(0)
   view      Int      @default(0)
-  postImg   String?
 
   Comment Comment[]
 
@@ -83,9 +83,9 @@ model Follow {
   createdAt DateTime @default(now())
 
   // 팔로우하는 사용자
-  followingUser User @relation("UserFollows", fields: [following], references: [userId])
+  followingUser User @relation("UserFollows", fields: [following], references: [userId], onDelete: Cascade)
   // 팔로워
-  followerUser  User @relation("UserFollowedBy", fields: [follower], references: [userId])
+  followerUser  User @relation("UserFollowedBy", fields: [follower], references: [userId], onDelete: Cascade)
 
   @@id([follower, following])
 }
@@ -106,8 +106,5 @@ model Reply {
 enum Provider {
   kakao
   google
-  naver
-  github
-  steam
   user
 }

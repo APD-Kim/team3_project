@@ -40,12 +40,17 @@ router.post("/follow/:followId", authMiddleware, async (req, res, next) => {
         });
         return [follow, incFollower];
       });
-      return res.status(204).json({ message: "팔로우 성공" });
+      return res.status(201).json({ message: "팔로우 성공" });
     } else {
       //팔로우가 되어있다면
       const result = await prisma.$transaction(async (tx) => {
         const follow = await tx.follow.delete({
-          where: { followId: searchFollow.followId },
+          where: {
+            follower_following: {
+              follower: Number(userId),
+              following: Number(followId),
+            },
+          },
         });
         const decFollower = await tx.user.update({
           where: { userId: Number(followId) },
@@ -53,7 +58,7 @@ router.post("/follow/:followId", authMiddleware, async (req, res, next) => {
         });
         return [follow, decFollower];
       });
-      return res.status(204).json({ message: "팔로우 취소 성공" });
+      return res.status(201).json({ message: "팔로우 취소 성공" });
     }
   } catch (err) {
     console.log(err.message);

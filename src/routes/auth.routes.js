@@ -25,7 +25,7 @@ passport.use(
       });
       if (findKakaoUser) {
         //만약 카카오로 가입한 적이 있다면
-        const token = jwt.sign({ id: findKakaoUser.id }, "custom-secret-key", { expiresIn: "8h" });
+        const token = jwt.sign({ userId: findKakaoUser.id }, "custom-secret-key", { expiresIn: "8h" });
         return done(null, findKakaoUser, { message: "Authentication successful", token });
       } else {
         //가입한 적이 없다면 가입시키고 로그인시켜주기
@@ -37,7 +37,7 @@ passport.use(
             provider: "kakao",
           },
         });
-        const token = jwt.sign({ id: registKakao.id }, "custom-secret-key", { expiresIn: "8h" });
+        const token = jwt.sign({ userId: registKakao.id }, "custom-secret-key", { expiresIn: "8h" });
         console.log(registKakao);
         return done(null, findKakaoUser, { message: "Authentication successful", token });
       }

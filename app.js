@@ -3,7 +3,6 @@ import "dotenv/config";
 import cookieParser from "cookie-parser";
 import redis from "redis";
 
-
 import commentRouter from "./src/routes/comments.routes.js";
 import withAuth from "./src/middleware/authLogin.middleware.js";
 import userRouter from "./src/routes/user.router.js";
@@ -16,6 +15,7 @@ import redisTestRouter from "./src/routes/test.js";
 import nonMemberAuthMiddleware from "./src/middleware/nonMember.auth.middleware.js";
 import authRouter from "./src/routes/auth.routes.js";
 import pageRouter from "./src/routes/page.routes.js";
+
 
 
 const redisClient = redis.createClient({
@@ -40,6 +40,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(nonMemberAuthMiddleware);
 app.use(withAuth);
+app.use(authRouter);
 app.use(pageRouter);
 app.use(userRouter);
 app.use(commentRouter);
@@ -55,6 +56,6 @@ app.get("/", function (req, res) {
   res.render("index");
 });
 
-app.listen(process.env.PORT, () => {
+app.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`${process.env.PORT}번 포트로 서버 실행중`);
 });
