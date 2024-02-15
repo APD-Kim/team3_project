@@ -18,6 +18,11 @@ const transporter = nodemailer.createTransport({
     pass: process.env.SEND_MAIL_PASSWORD,
   },
 });
+
+router.get("/verify-email", (req, res) => {
+  res.render("verifyemail");
+});
+
 // 이메일 코드 전송 API
 router.post("/verify-email", async (req, res, next) => {
   const { email } = req.body;
@@ -38,7 +43,7 @@ router.post("/verify-email", async (req, res, next) => {
     if (error) {
       return res.status(500).json({ message: '이메일 전송 중 오류가 발생했습니다.' });
     } else {
-      return res.status(201).json({ message: '이메일을 확인해주세요.' });
+      return res.redirect("/sign-up")
     }
   });
 });
@@ -77,33 +82,40 @@ router.post("/sign-up", async (req, res, next) => {
     const user = await prisma.user.create({
            data: { email, password: hashedPassword, name },
          });
-    return res.status(201).json({ data: user, message: '이메일 인증이 성공하였습니다' });
+         return res.redirect("/")
   } else {
     return res.status(400).json({ message: '이메일 인증이 실패했습니다. 다시 확인하세요' });
   }
 });
+
+router.get("/login", (req, res) => {
+  res.render("login");
+});
 // 로그인 api
 router.post("/login", async (req, res, next) => {
   const { email, password } = req.body;
-  const user = await prisma.user.findFirst({ where: { email, provider: "user" } });
+  const user = await prisma.user.findFirst({ where: { email } });
   if (!user) {
     return res.status(401).json({ message: "존재하지 않는 이메일입니다" });
-  }
-  if (user.password === null) {
-    return res.status(403).json({ message: "비밀번호가 일치하지 않습니다." });
   }
   if (!(await bcrypt.compare(password, user.password))) {
     return res.status(403).json({ message: "비밀번호가 일치하지 않습니다" });
   }
   const token = jwt.sign({ userId: user.userId }, "custom-secret-key");
-  res.cookie("authorization", `Bearer ${token}`, { maxAge: 1000 * 60 * 60 * 8 });
-  return res.status(200).json({ message: "로그인에 성공하였습니다" });
+  res.cookie("authorization", `Bearer ${token}`);
+  return res.redirect("/")
+});
+
+router.get("/logout", (req, res) => {
+  res.render("logout");
 });
 // 로그아웃 api
 router.post("/logout", authMiddleware, async (req, res, next) => {
   res.clearCookie("authorization");
-  return res.status(200).json({ message: "로그아웃에 성공하였습니다" });
+  return res.redirect("/")
 });
+
+
 // 비밀번호 변경
 router.put('/check-change', authMiddleware, async (req, res) => {
   const userId = req.user.userId;

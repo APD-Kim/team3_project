@@ -10,7 +10,9 @@
     <%- include('nav.ejs')%>
     <form class="form-box" action="/sign-up" method="POST">
       <h4>가입</h4>
-      <h4>아이디</h4>
+      <h4>인증번호</h4>
+      <input name="verificationCode" type="text" />
+      <h4>이메일</h4>
       <input name="email" type="email" />
       <h4>닉네임</h4>
       <input name="name" type="text" />
